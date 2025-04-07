@@ -16,9 +16,8 @@ export class NoteService {
   ) {}
 
   async getNotes(): Promise<Note[]> {
-    const cachedNotes =
-      (await this.cacheManager.get<Note[]>(this.cacheKey)) || [];
-    if (cachedNotes) {
+    const cachedNotes = await this.cacheManager.get<Note[]>(this.cacheKey);
+    if (cachedNotes && cachedNotes.length > 0) {
       return cachedNotes;
     }
 
