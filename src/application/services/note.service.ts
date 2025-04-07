@@ -41,8 +41,8 @@ export class NoteService {
     return note;
   }
 
-  async createNote(content: string): Promise<Note> {
-    const note = new Note(content);
+  async createNote(title: string, content: string): Promise<Note> {
+    const note = new Note(title, content);
     const savedNote = await this.noteRepository.create(note);
     await this.cacheManager.del(this.cacheKey);
     return savedNote;

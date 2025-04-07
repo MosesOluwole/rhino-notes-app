@@ -25,32 +25,35 @@ describe('Notes API (e2e)', () => {
     await request(app.getHttpServer()).get('/notes').expect(200).expect([]);
   });
 
-  it('/notes (POST) should create a note', async () => {
-    const noteContent = 'This is a test note.';
+  it('/notes (POST) should create a note with title and content', async () => {
+    const noteTitle = 'Test Note Title';
+    const noteContent = 'This is a test note content.';
     const response = await request(app.getHttpServer())
       .post('/notes')
-      .send({ content: noteContent })
+      .send({ title: noteTitle, content: noteContent })
       .expect(201);
 
     expect(response.body).toHaveProperty('id');
+    expect(response.body.title).toEqual(noteTitle);
     expect(response.body.content).toEqual(noteContent);
+    expect(response.body).toHaveProperty('createdAt');
   });
 
   it('/notes (GET) should return an array with at least one note', async () => {
     const response = await request(app.getHttpServer())
       .get('/notes')
       .expect(200);
-
     expect(Array.isArray(response.body)).toBe(true);
     expect(response.body.length).toBeGreaterThan(0);
   });
 
   it('/notes/:id (DELETE) should delete a note', async () => {
     // First, create a note to delete
-    const noteContent = 'Note to delete';
+    const noteTitle = 'Note to Delete';
+    const noteContent = 'This note will be deleted.';
     const postResponse = await request(app.getHttpServer())
       .post('/notes')
-      .send({ content: noteContent })
+      .send({ title: noteTitle, content: noteContent })
       .expect(201);
     const noteId = postResponse.body.id;
 
@@ -61,7 +64,9 @@ describe('Notes API (e2e)', () => {
     const getResponse = await request(app.getHttpServer())
       .get('/notes')
       .expect(200);
-    const deletedNote = getResponse.body.find((note) => note.id === noteId);
+    const deletedNote = getResponse.body.find(
+      (note: any) => note.id === noteId,
+    );
     expect(deletedNote).toBeUndefined();
   });
 });

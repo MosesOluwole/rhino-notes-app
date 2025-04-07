@@ -2,6 +2,7 @@ import { Controller, Get, Post, Delete, Body, Param } from '@nestjs/common';
 import { NoteService } from '../../application/services/note.service';
 import { Note } from '../../domain/note.entity';
 import { CreateNoteDto } from '../../dto/create-note.dto';
+import { GetNoteDto } from 'src/dto/get-note.dto';
 
 @Controller('notes')
 export class NotesController {
@@ -9,7 +10,16 @@ export class NotesController {
 
   @Get()
   async getNotes(): Promise<Note[]> {
-    return this.noteService.getNotes();
+    const notes: Note[] = await this.noteService.getNotes();
+    return notes.map(
+      (note) =>
+        new GetNoteDto({
+          id: note.id,
+          title: note.title,
+          content: note.content,
+          createdAt: note.createdAt,
+        }),
+    );
   }
 
   @Get(':id')
@@ -18,8 +28,17 @@ export class NotesController {
   }
 
   @Post()
-  async createNote(@Body() createNoteDto: CreateNoteDto): Promise<Note> {
-    return this.noteService.createNote(createNoteDto.content);
+  async createNote(@Body() createNoteDto: CreateNoteDto): Promise<GetNoteDto> {
+    const note = await this.noteService.createNote(
+      createNoteDto.title,
+      createNoteDto.content,
+    );
+    return new GetNoteDto({
+      id: note.id,
+      title: note.title,
+      content: note.content,
+      createdAt: note.createdAt,
+    });
   }
 
   @Delete(':id')

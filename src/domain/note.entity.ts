@@ -6,12 +6,16 @@ export class Note {
   id!: number;
 
   @Property()
+  title: string;
+
+  @Property()
   content: string;
 
   @Property({ onCreate: () => new Date() })
   createdAt: Date = new Date();
 
-  constructor(content: string) {
+  constructor(title: string, content: string) {
+    this.title = title;
     this.content = content;
   }
 }
