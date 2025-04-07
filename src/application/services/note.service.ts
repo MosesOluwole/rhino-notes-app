@@ -28,7 +28,6 @@ export class NoteService {
   }
 
   async getNoteById(id: number): Promise<Note | null> {
-    // Check cache first
     const cachedNote = await this.cacheManager.get<Note>(
       `${this.cacheKey}_${id}`,
     );
@@ -36,7 +35,6 @@ export class NoteService {
       return cachedNote;
     }
 
-    // If not in cache, retrieve from the repository
     const note = await this.noteRepository.findById(id);
     if (note) {
       await this.cacheManager.set(`${this.cacheKey}_${id}`, note, 60);
@@ -47,14 +45,13 @@ export class NoteService {
   async createNote(content: string): Promise<Note> {
     const note = new Note(content);
     const savedNote = await this.noteRepository.create(note);
-    // Invalidate cache when data changes
     await this.cacheManager.del(this.cacheKey);
     return savedNote;
   }
 
   async deleteNote(id: number): Promise<void> {
     await this.noteRepository.delete(id);
-    // Invalidate cache after deletion
+
     await this.cacheManager.del(this.cacheKey);
   }
 }
